@@ -40,7 +40,7 @@
       appId: "1:744643944793:web:ef1a768eabaa2c580c2c48"
     };
 
-    const isConfigSet = firebaseConfig && firebaseConfig.databaseURL && !firebaseConfig.apiKey.includes("AIzaSy");
+    const isConfigSet = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL;
 
     if (isConfigSet) {
       firebase.initializeApp(firebaseConfig);
@@ -259,33 +259,33 @@
 
       // --- RENDER ---
       if (!isConfigSet) {
-        return <div className="h-full flex items-center justify-center p-4">
-          <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl max-w-lg text-center shadow-lg">
-            <h1 className="text-2xl font-bold mb-4">Firebase-konfig mangler</h1>
-            <p className="text-gray-300 mb-4">Lim inn Firebase-konfigen i toppen av <code>index.html</code> for at online-funksjonen skal fungere.</p>
-            <p className="text-xs text-gray-400">Gå til Firebase Console → Project settings → Your apps → SDK snippet → Config</p>
+        return <div class="h-full flex items-center justify-center p-4">
+          <div class="bg-white/10 backdrop-blur-md p-8 rounded-2xl max-w-lg text-center shadow-lg">
+            <h1 class="text-2xl font-bold mb-4">Firebase-konfig mangler</h1>
+            <p class="text-gray-300 mb-4">Lim inn Firebase-konfigen i toppen av <code>index.html</code> for at online-funksjonen skal fungere.</p>
+            <p class="text-xs text-gray-400">Gå til Firebase Console → Project settings → Your apps → SDK snippet → Config</p>
           </div>
         </div>;
       }
 
       if (!roomCode || !currentPlayer) {
-        return <div className="h-full flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-            <h1 className="text-5xl font-extrabold text-center mb-6">IMPOSTER</h1>
-            {error && <div className="mb-4 p-3 rounded-lg bg-red-500/50 text-white text-center">{error}</div>}
-            <input className="w-full p-4 mb-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ditt navn" value={playerName} onChange={e => setPlayerName(e.target.value)} />
-            <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-lg mb-4 transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('create')} disabled={loading}>{loading ? 'Lager...' : 'Lag nytt rom'}</button>
-            <div className="text-center text-gray-400 my-2">eller</div>
-            <div className="flex gap-3">
-              <input className="flex-grow p-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Rom-kode" value={roomInput} onChange={e => setRoomInput(e.target.value)} />
-              <button className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('join')} disabled={loading}>{loading ? '...' : 'Bli med'}</button>
+        return <div class="h-full flex items-center justify-center p-4">
+          <div class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
+            <h1 class="text-5xl font-extrabold text-center mb-6">IMPOSTER</h1>
+            {error && <div class="mb-4 p-3 rounded-lg bg-red-500/50 text-white text-center">{error}</div>}
+            <input class="w-full p-4 mb-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ditt navn" value={playerName} onChange={e => setPlayerName(e.target.value)} />
+            <button class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-lg mb-4 transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('create')} disabled={loading}>{loading ? 'Lager...' : 'Lag nytt rom'}</button>
+            <div class="text-center text-gray-400 my-2">eller</div>
+            <div class="flex gap-3">
+              <input class="flex-grow p-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Rom-kode" value={roomInput} onChange={e => setRoomInput(e.target.value)} />
+              <button class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('join')} disabled={loading}>{loading ? '...' : 'Bli med'}</button>
             </div>
           </div>
         </div>;
       }
       
       if (!game) {
-        return <div className="h-full flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div></div>
+        return <div class="h-full flex items-center justify-center"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div></div>
       }
 
       const playersArr = Object.values(game.players || {});
@@ -296,27 +296,27 @@
         switch(game.phase) {
           case 'lobby':
             return <>
-              <div className="flex justify-between items-start mb-4">
+              <div class="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold">Lobby</h2>
-                  <p className="text-gray-400">Venter på at spillere skal bli med...</p>
+                  <h2 class="text-2xl font-bold">Lobby</h2>
+                  <p class="text-gray-400">Venter på at spillere skal bli med...</p>
                 </div>
-                <button className={`bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition ${playersArr.length < 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`} disabled={playersArr.length < 3} onClick={startGame}>Start Spillet</button>
+                <button class={`bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition ${playersArr.length < 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`} disabled={playersArr.length < 3} onClick={startGame}>Start Spillet</button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {playersArr.map(p => <div key={p.id} className="bg-white/10 p-4 rounded-xl text-center"><div className="font-bold text-lg">{p.name}</div><div className="text-sm text-purple-300">Poeng: {p.score || 0}</div></div>)}
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {playersArr.map(p => <div key={p.id} class="bg-white/10 p-4 rounded-xl text-center"><div class="font-bold text-lg">{p.name}</div><div class="text-sm text-purple-300">Poeng: {p.score || 0}</div></div>)}
               </div>
             </>;
           
           case 'showWord':
-            return <div className="text-center py-10">
-              <h2 className="text-3xl font-bold mb-4">{isImposter ? 'Du er Imposter!' : 'Ditt hemmelige ord er:'}</h2>
+            return <div class="text-center py-10">
+              <h2 class="text-3xl font-bold mb-4">{isImposter ? 'Du er Imposter!' : 'Ditt hemmelige ord er:'}</h2>
               {isImposter ? 
-                <div className="inline-block bg-red-500/80 px-10 py-8 rounded-2xl text-2xl font-bold shadow-lg">Vær lur, blend inn!</div> :
-                <div className="inline-block bg-blue-500/80 px-10 py-8 rounded-2xl text-4xl font-bold shadow-lg">{game.word}</div>
+                <div class="inline-block bg-red-500/80 px-10 py-8 rounded-2xl text-2xl font-bold shadow-lg">Vær lur, blend inn!</div> :
+                <div class="inline-block bg-blue-500/80 px-10 py-8 rounded-2xl text-4xl font-bold shadow-lg">{game.word}</div>
               }
-              <p className="text-gray-300 mt-5 text-lg">Kategori: <span className="font-semibold">{game.category === 'dyr' ? '🐾 Dyr' : '🔧 Ting'}</span></p>
-              <p className="mt-8 text-gray-400">Diskusjonen starter om noen sekunder...</p>
+              <p class="text-gray-300 mt-5 text-lg">Kategori: <span class="font-semibold">{game.category === 'dyr' ? '🐾 Dyr' : '🔧 Ting'}</span></p>
+              <p class="mt-8 text-gray-400">Diskusjonen starter om noen sekunder...</p>
             </div>;
           
           case 'discussion':
@@ -324,27 +324,27 @@
             const sortedMessages = Object.entries(game.chat?.messages || {}).sort((a,b) => a[1].timestamp - b[1].timestamp);
 
             return <>
-              <div className="flex justify-between items-center mb-4">
+              <div class="flex justify-between items-center mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold">Diskusjon</h2>
-                  <p className="text-gray-400">{currentTurnPlayer?.name} sin tur til å snakke.</p>
+                  <h2 class="text-2xl font-bold">Diskusjon</h2>
+                  <p class="text-gray-400">{currentTurnPlayer?.name} sin tur til å snakke.</p>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-5 rounded-lg" onClick={() => db.ref(`rooms/${game.code}/phase`).set('voting')}>Start Avstemning</button>
+                <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-5 rounded-lg" onClick={() => db.ref(`rooms/${game.code}/phase`).set('voting')}>Start Avstemning</button>
               </div>
-              <div className="bg-black/20 h-80 rounded-lg p-4 flex flex-col space-y-3 overflow-y-auto scroll-smooth scrollbar-thin mb-4">
+              <div class="bg-black/20 h-80 rounded-lg p-4 flex flex-col space-y-3 overflow-y-auto scroll-smooth scrollbar-thin mb-4">
                 {sortedMessages.map(([key, msg]) => (
-                  <div key={key} className={`flex flex-col ${msg.senderId === currentPlayer.id ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-4 py-2 rounded-xl max-w-xs md:max-w-md ${msg.senderId === currentPlayer.id ? 'bg-purple-600 rounded-br-none' : 'bg-gray-700 rounded-bl-none'}`}>
-                      {msg.senderId !== currentPlayer.id && <div className="font-bold text-xs text-purple-300 mb-1">{msg.senderName}</div>}
-                      <p className="text-white">{msg.text}</p>
+                  <div key={key} class={`flex flex-col ${msg.senderId === currentPlayer.id ? 'items-end' : 'items-start'}`}>
+                    <div class={`px-4 py-2 rounded-xl max-w-xs md:max-w-md ${msg.senderId === currentPlayer.id ? 'bg-purple-600 rounded-br-none' : 'bg-gray-700 rounded-bl-none'}`}>
+                      {msg.senderId !== currentPlayer.id && <div class="font-bold text-xs text-purple-300 mb-1">{msg.senderName}</div>}
+                      <p class="text-white">{msg.text}</p>
                     </div>
                   </div>
                 ))}
                 <div ref={chatEndRef} />
               </div>
-              <div className="flex gap-3">
+              <div class="flex gap-3">
                 <input 
-                  className="flex-grow p-4 bg-black/30 border border-white/20 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+                  class="flex-grow p-4 bg-black/30 border border-white/20 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
                   placeholder={currentTurnPlayer?.id === currentPlayer.id ? "Skriv meldingen din..." : `Venter på ${currentTurnPlayer?.name}...`}
                   value={chatInput}
                   onChange={e => setChatInput(e.target.value)}
@@ -352,7 +352,7 @@
                   disabled={currentTurnPlayer?.id !== currentPlayer.id}
                 />
                 <button 
-                  className="bg-purple-600 text-white font-bold py-4 px-6 rounded-lg disabled:opacity-50 hover:bg-purple-700 transition" 
+                  class="bg-purple-600 text-white font-bold py-4 px-6 rounded-lg disabled:opacity-50 hover:bg-purple-700 transition" 
                   onClick={sendChatMessage}
                   disabled={currentTurnPlayer?.id !== currentPlayer.id || !chatInput.trim()}
                 >Send</button>
@@ -361,45 +361,45 @@
           
           case 'voting':
             const myVote = game.votes?.[currentPlayer.id];
-            return <div className="py-6">
-              <h2 className="text-3xl font-bold text-center mb-6">Hvem er Imposter?</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+            return <div class="py-6">
+              <h2 class="text-3xl font-bold text-center mb-6">Hvem er Imposter?</h2>
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
                 {playersArr.map(p => {
                   const votesForP = Object.values(game.votes || {}).filter(v => v === p.id).length;
-                  return <button key={p.id} onClick={() => castVote(p.id)} disabled={!!myVote} className={`p-5 rounded-xl text-center transition duration-300 ${myVote ? (myVote === p.id ? 'ring-4 ring-pink-500' : 'opacity-60') : 'bg-white/10 hover:bg-white/20'}`}>
-                    <div className="font-bold text-xl">{p.name}</div>
-                    {votesForP > 0 && <div className="text-sm text-pink-400 mt-1">{votesForP} stemme{votesForP > 1 ? 'r' : ''}</div>}
+                  return <button key={p.id} onClick={() => castVote(p.id)} disabled={!!myVote} class={`p-5 rounded-xl text-center transition duration-300 ${myVote ? (myVote === p.id ? 'ring-4 ring-pink-500' : 'opacity-60') : 'bg-white/10 hover:bg-white/20'}`}>
+                    <div class="font-bold text-xl">{p.name}</div>
+                    {votesForP > 0 && <div class="text-sm text-pink-400 mt-1">{votesForP} stemme{votesForP > 1 ? 'r' : ''}</div>}
                   </button>
                 })}
               </div>
-              <p className="text-center text-gray-400">{Object.keys(game.votes || {}).length} av {playersArr.length} har stemt.</p>
+              <p class="text-center text-gray-400">{Object.keys(game.votes || {}).length} av {playersArr.length} har stemt.</p>
             </div>;
           
           case 'results':
             const imposterPlayer = game.players[game.imposter];
             const suspectPlayer = game.players[game.suspectId];
             const imposterFound = game.suspectId === game.imposter;
-            return <div className="py-6 text-center">
-                <h2 className="text-4xl font-extrabold mb-4">{imposterFound ? 'Imposter Funnet!' : 'Imposter Rømte!'}</h2>
-                <div className={`p-6 rounded-xl mb-6 ${imposterFound ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
-                    <div>Ordet var: <strong className="font-bold text-xl">{game.word}</strong></div>
-                    <div>Imposteren var: <strong className="font-bold text-xl">{imposterPlayer?.name}</strong></div>
-                    <div>Flest stemmer gikk til: <strong className="font-bold text-xl">{suspectPlayer?.name || 'Ingen'}</strong></div>
+            return <div class="py-6 text-center">
+                <h2 class="text-4xl font-extrabold mb-4">{imposterFound ? 'Imposter Funnet!' : 'Imposter Rømte!'}</h2>
+                <div class={`p-6 rounded-xl mb-6 ${imposterFound ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
+                    <div>Ordet var: <strong class="font-bold text-xl">{game.word}</strong></div>
+                    <div>Imposteren var: <strong class="font-bold text-xl">{imposterPlayer?.name}</strong></div>
+                    <div>Flest stemmer gikk til: <strong class="font-bold text-xl">{suspectPlayer?.name || 'Ingen'}</strong></div>
                 </div>
-                <div className="mb-6 text-left max-w-sm mx-auto">
-                    <h3 className="font-bold text-xl mb-3 text-center">Poengtavle</h3>
-                    <div className="space-y-2">
+                <div class="mb-6 text-left max-w-sm mx-auto">
+                    <h3 class="font-bold text-xl mb-3 text-center">Poengtavle</h3>
+                    <div class="space-y-2">
                         {playersArr.slice().sort((a,b)=> b.score-a.score).map((p, i) => (
-                            <div key={p.id} className="flex justify-between items-center bg-white/10 p-3 rounded-lg">
-                                <span className="font-semibold">{i === 0 ? '👑 ' : ''}{p.name}</span>
-                                <span className="font-bold text-purple-300">{p.score} poeng</span>
+                            <div key={p.id} class="flex justify-between items-center bg-white/10 p-3 rounded-lg">
+                                <span class="font-semibold">{i === 0 ? '👑 ' : ''}{p.name}</span>
+                                <span class="font-bold text-purple-300">{p.score} poeng</span>
                             </div>
                         ))}
                     </div>
                 </div>
-                <div className="flex gap-4 justify-center">
-                    <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg" onClick={playAgain}>Spill Igjen</button>
-                    <button className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg" onClick={handleLeave}>Forlat Rom</button>
+                <div class="flex gap-4 justify-center">
+                    <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg" onClick={playAgain}>Spill Igjen</button>
+                    <button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg" onClick={handleLeave}>Forlat Rom</button>
                 </div>
             </div>;
         }
@@ -407,22 +407,22 @@
       }
 
       return (
-        <div className="min-h-screen p-4 sm:p-6 flex flex-col">
-          <div className="max-w-5xl w-full mx-auto bg-black/20 backdrop-blur-xl rounded-3xl shadow-2xl p-4 sm:p-6 flex-grow flex flex-col">
-            <header className="flex justify-between items-center mb-4 border-b border-white/10 pb-4">
+        <div class="min-h-screen p-4 sm:p-6 flex flex-col">
+          <div class="max-w-5xl w-full mx-auto bg-black/20 backdrop-blur-xl rounded-3xl shadow-2xl p-4 sm:p-6 flex-grow flex flex-col">
+            <header class="flex justify-between items-center mb-4 border-b border-white/10 pb-4">
               <div>
-                <h1 className="text-2xl font-bold">IMPOSTER</h1>
-                <div className="text-sm text-gray-400">Rom: <span className="font-mono font-bold text-purple-400 tracking-widest cursor-pointer" onClick={() => navigator.clipboard.writeText(game.code)} title="Kopier kode">{game.code}</span></div>
+                <h1 class="text-2xl font-bold">IMPOSTER</h1>
+                <div class="text-sm text-gray-400">Rom: <span class="font-mono font-bold text-purple-400 tracking-widest cursor-pointer" onClick={() => navigator.clipboard.writeText(game.code)} title="Kopier kode">{game.code}</span></div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="font-semibold">{me?.name}</div>
-                  <div className="text-xs text-purple-300">Poeng: {me?.score || 0}</div>
+              <div class="flex items-center gap-4">
+                <div class="text-right">
+                  <div class="font-semibold">{me?.name}</div>
+                  <div class="text-xs text-purple-300">Poeng: {me?.score || 0}</div>
                 </div>
-                <button className="px-4 py-2 bg-red-800/70 hover:bg-red-700 rounded-lg text-white font-semibold transition" onClick={handleLeave}>Forlat</button>
+                <button class="px-4 py-2 bg-red-800/70 hover:bg-red-700 rounded-lg text-white font-semibold transition" onClick={handleLeave}>Forlat</button>
               </div>
             </header>
-            <main className="flex-grow">
+            <main class="flex-grow">
               <MainContent />
             </main>
           </div>
@@ -434,3 +434,4 @@
   </script>
 </body>
 </html>
+
