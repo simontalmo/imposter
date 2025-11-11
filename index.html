@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="no">
 <head>
@@ -27,7 +28,7 @@
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, memo } = React;
 
     // --- CONFIG: Firebase config is set ---
     const firebaseConfig = {
@@ -54,6 +55,8 @@
 
     function generateRoomCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
     function generateId(prefix = '') { return prefix + Math.random().toString(36).substring(2, 9); }
+
+    const MemoizedGameScreen = memo(GameScreen);
 
     function App() {
       const [playerName, setPlayerName] = useState('');
@@ -210,7 +213,7 @@
         </div>;
       }
       
-      return <GameScreen game={game} currentPlayer={currentPlayer} onLeave={handleLeave} />
+      return <MemoizedGameScreen game={game} currentPlayer={currentPlayer} onLeave={handleLeave} />
     }
 
     function GameScreen({ game, currentPlayer, onLeave }) {
@@ -450,7 +453,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);_branch_changed_to_main
   </script>
 </body>
 </html>
