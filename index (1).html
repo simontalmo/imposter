@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Imposter — spill</title>
+
+  <!-- Tailwind (for enkel styling i statisk demo) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React + ReactDOM (UMD builds for demo) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Babel for å transpile JSX i browser (enkelt for statisk demo på GitHub Pages) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body, #root { height: 100%; }
+  </style>
+</head>
+<body class="antialiased bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+  <div id="root" class="h-full"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- Konfig / ordlister ---
+    const WORDS = {
+      dyr: ['Elefant','Pingvin','Delfin','Tiger','Kenguru','Bjørn','Rev','Ugle','Hai','Papegøye','Zebra','Giraff','Panda','Koala','Leopard'],
+      ting: ['Piano','Paraply','Kompass','Teleskop','Koffert','Lommelykt','Mikrofon','Kamera','Sykkel','Skateboard','Trampoline','Fyrstikk','Hammer','Laptop']
+    };
+
+    const STORAGE_PREFIX = 'imposter:v1:'; // Versjonert nøkkel slik at fremtidige endringer er enklere å håndtere
+    const POLL_INTERVAL_MS = 1500; // hvordan ofte vi leser localStorage for oppdateringer
+
+    // --- Helpers ---
+    function generateRoomCode() {
+      // 6 tegn, store bokstaver og tall, lett å lese
+      return Math.random().toString(36).replace(/[^a-z0-9]+/g, '').substring(2, 8).toUpperCase();
+    }
+
+    function generateId(prefix = '') {
+      return prefix + Math.random().toString(36).substring(2, 9);
+    }
+
+    function storageKey(roomCode) {
+      return STORAGE_PREFIX + roomCode;
+    }
+
+    function safeParse(raw) {
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function storageGet(roomCode) {
+      try {
+        const raw = localStorage.getItem(storageKey(roomCode));
+        return safeParse(raw);
+      } catch (e) {
+        console.error('Storage get error', e);
+        return null;
+      }
+    }
+
+    function storageSet(roomCode, obj) {
+      try {
+        localStorage.setItem(storageKey(roomCode), JSON.stringify(obj));
+        return true;
+      } catch (e) {
+        console.error('Storage set error', e);
+        return false;
+      }
+    }
+
+    function storageRemove(roomCode) {
+      try {
+        localStorage.removeItem(storageKey(roomCode));
+      } catch (e) {
+        console.error('Storage remove error', e);
+      }
+    }
+
+    // --- Default game shape ---
+    function createEmptyGame(roomCode, hostPlayer) {
+      return {
+        code: roomCode,
+        phase: 'lobby', // lobby | showWord | discussion | voting | results
+        players: [ hostPlayer ], // {id, name, score, joinedAt}
+        word: null,
+        category: null,
+        imposter: null, // player id
+        votes: {}, // { voterId: votedForId }
+        suspectId: null,
+        createdAt: Date.now()
+      };
+    }
+
+    // --- React app ---
+    function App() {
+      const [playerName, setPlayerName] = useState('');
+      const [roomInput, setRoomInput] = useState('');
+      const [roomCode, setRoomCode] = useState('');
+      const [game, setGame] = useState(null);
+      const [currentPlayer, setCurrentPlayer] = useState(null);
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+      const pollRef = useRef(null);
+
+      // Laster spill når roomCode settes, og setter opp polling + storage-event
+      useEffect(() => {
+        if (!roomCode) return;
+
+        // load initially
+        reloadGameFromStorage();
+
+        // poll for updates (for tabs where 'storage' event ikke trigges)
+        pollRef.current = setInterval(() => {
+          reloadGameFromStorage();
+        }, POLL_INTERVAL_MS);
+
+        // listen to storage events from other tabs
+        function onStorage(e) {
+          if (!e.key) return;
+          if (e.key === storageKey(roomCode)) {
+            reloadGameFromStorage();
+          }
+        }
+        window.addEventListener('storage', onStorage);
+
+        // remove self from game on unload/refresh - attempt to be graceful
+        function handleBeforeUnload() {
+          // note: synchronous, may not always succeed in all browsers
+          removeSelfFromGame();
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+          clearInterval(pollRef.current);
+          window.removeEventListener('storage', onStorage);
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      }, [roomCode, currentPlayer]);
+
+      // --- Actions ---
+      function reloadGameFromStorage() {
+        if (!roomCode) return;
+        const g = storageGet(roomCode);
+        if (!g) {
+          // hvis spillet slettes mens du er i det, vis feilmelding og dropp ut
+          setGame(null);
+          return;
+        }
+        setGame(g);
+      }
+
+      function createRoom() {
+        setError('');
+        const name = playerName.trim();
+        if (!name) return setError('Skriv inn navnet ditt.');
+
+        // finn unik kode (prøv noen ganger)
+        let code = generateRoomCode();
+        let tries = 0;
+        while (storageGet(code) && tries < 6) {
+          code = generateRoomCode();
+          tries += 1;
+        }
+
+        const pid = generateId('p_');
+        const player = { id: pid, name, score: 0, joinedAt: Date.now() };
+        const g = createEmptyGame(code, player);
+        storageSet(code, g);
+
+        setRoomCode(code);
+        setCurrentPlayer(player);
+        setGame(g);
+      }
+
+      function joinRoom() {
+        setError('');
+        const name = playerName.trim();
+        const code = roomInput.trim().toUpperCase();
+        if (!name) return setError('Skriv inn navnet ditt.');
+        if (!code) return setError('Skriv inn rom-koden.');
+
+        const g = storageGet(code);
+        if (!g) return setError(`Rom "${code}" finnes ikke.`);
+
+        // sjekk om navn er i bruk
+        if (g.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+          return setError('Dette navnet er allerede i bruk i rommet. Velg et annet.');
+        }
+
+        const pid = generateId('p_');
+        const player = { id: pid, name, score: 0, joinedAt: Date.now() };
+        g.players.push(player);
+        storageSet(code, g);
+
+        setRoomCode(code);
+        setCurrentPlayer(player);
+        setGame(g);
+      }
+
+      function startGame() {
+        setError('');
+        if (!game) return;
+        if (game.players.length < 3) return setError('Trenger minst 3 spillere for å starte.');
+
+        const category = Math.random() > 0.5 ? 'dyr' : 'ting';
+        const wordList = WORDS[category];
+        const word = wordList[Math.floor(Math.random() * wordList.length)];
+        const imposterIndex = Math.floor(Math.random() * game.players.length);
+        const imposterId = game.players[imposterIndex].id;
+
+        const newGame = {
+          ...game,
+          phase: 'showWord',
+          category,
+          word,
+          imposter: imposterId,
+          votes: {},
+          suspectId: null
+        };
+        storageSet(game.code, newGame);
+        setGame(newGame);
+
+        // etter noen sekunder gå til diskusjon
+        setTimeout(() => {
+          const g2 = storageGet(game.code);
+          if (!g2) return;
+          g2.phase = 'discussion';
+          storageSet(game.code, g2);
+          setGame(g2);
+        }, 8000);
+      }
+
+      function startVoting() {
+        if (!game) return;
+        const g = { ...game, phase: 'voting', votes: {} };
+        storageSet(game.code, g);
+        setGame(g);
+      }
+
+      function castVote(votedForId) {
+        if (!game || !currentPlayer) return;
+        // fengsel: hvis allerede stemt, ikke la dem stemme igjen (men vi registrerer; her enkel implementasjon)
+        const votes = { ...game.votes, [currentPlayer.id]: votedForId };
+        const g = { ...game, votes };
+        storageSet(game.code, g);
+        setGame(g);
+
+        // hvis alle har stemt -> vis resultat
+        const numVotes = Object.keys(votes).length;
+        if (numVotes >= game.players.length) {
+          // liten delay så UI får oppdatert
+          setTimeout(() => showResults(votes), 800);
+        }
+      }
+
+      function showResults(votes) {
+        if (!game) return;
+        // tell oppstemmer
+        const counts = {};
+        Object.values(votes).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+        // finn id med flest stemmer (ved uavgjort: velg en av dem med flest stemmer deterministisk)
+        let max = -1;
+        let suspectId = null;
+        Object.entries(counts).forEach(([id, c]) => {
+          if (c > max || (c === max && id < suspectId)) { // tie-breaker: lexicographic
+            max = c;
+            suspectId = id;
+          }
+        });
+
+        const newPlayers = game.players.map(p => {
+          if (suspectId === game.imposter && p.id !== game.imposter) {
+            // lagkameratene får poeng når imposteren avsløres
+            return { ...p, score: p.score + 1 };
+          } else if (suspectId !== game.imposter && p.id === game.imposter) {
+            // imposteren får poeng hvis hen ikke blir funnet
+            return { ...p, score: p.score + 2 };
+          } else {
+            return p;
+          }
+        });
+
+        const g = { ...game, phase: 'results', players: newPlayers, suspectId };
+        storageSet(game.code, g);
+        setGame(g);
+      }
+
+      function playAgain() {
+        if (!game) return;
+        const g = {
+          ...game,
+          phase: 'lobby',
+          word: null,
+          category: null,
+          imposter: null,
+          votes: {},
+          suspectId: null
+        };
+        storageSet(game.code, g);
+        setGame(g);
+      }
+
+      function leaveRoom() {
+        removeSelfFromGame();
+        setRoomCode('');
+        setGame(null);
+        setCurrentPlayer(null);
+      }
+
+      function removeSelfFromGame() {
+        if (!currentPlayer || !roomCode) return;
+        const g = storageGet(roomCode);
+        if (!g) return;
+        const remaining = g.players.filter(p => p.id !== currentPlayer.id);
+        if (remaining.length === 0) {
+          // fjern hele rommet
+          storageRemove(roomCode);
+        } else {
+          g.players = remaining;
+          // hvis imposter var denne spilleren, la spillet fortsette men fjern imposter (eller velg ny?) - her velger vi å fjerne imposter hvis det var dem
+          if (g.imposter === currentPlayer.id) {
+            g.imposter = null;
+            g.phase = 'lobby';
+            g.word = null;
+            g.votes = {};
+            g.suspectId = null;
+          }
+          storageSet(roomCode, g);
+        }
+      }
+
+      // --- UI ---
+      // Hvis vi ikke er i et rom: vis lobby-create/join skjerm
+      if (!roomCode) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="max-w-xl w-full bg-white rounded-3xl p-8 shadow-2xl">
+              <h1 className="text-4xl font-extrabold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-500">IMPOSTER</h1>
+              <p className="text-center text-gray-600 mb-6">Et enkelt partyspill — finn imposteren!</p>
+
+              {error && <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700">{error}</div>}
+
+              <input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="Ditt navn" className="w-full mb-3 p-3 border rounded-xl focus:outline-none" />
+
+              <div className="flex gap-3">
+                <button onClick={createRoom} className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white py-3 rounded-xl font-bold hover:opacity-90">Lag nytt rom</button>
+              </div>
+
+              <div className="my-4 text-center text-sm text-gray-500">eller</div>
+
+              <input value={roomInput} onChange={e=>setRoomInput(e.target.value)} placeholder="Rom-kode" className="w-full mb-3 p-3 border rounded-xl focus:outline-none text-transform:uppercase" />
+
+              <div className="flex gap-3">
+                <button onClick={joinRoom} className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-xl font-bold hover:opacity-90">Bli med i rom</button>
+              </div>
+
+              <div className="mt-4 text-sm text-gray-600">
+                <p>Push gjerne denne filen som <code>index.html</code> i repoet ditt og aktiver GitHub Pages.</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Hvis vi er i et rom men spillet ikke finnes (ble slettet) -> informere
+      if (!game) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="max-w-xl w-full bg-white rounded-3xl p-8 shadow-2xl text-center">
+              <h2 className="text-2xl font-bold mb-4">Rom ikke funnet</h2>
+              <p className="text-gray-600 mb-6">Spillet ble ikke funnet eller er fjernet. Du blir tatt tilbake til hovedmenyen.</p>
+              <button onClick={() => { setRoomCode(''); setCurrentPlayer(null); }} className="bg-blue-500 text-white py-3 px-6 rounded-xl">Tilbake</button>
+            </div>
+          </div>
+        );
+      }
+
+      const isImposter = currentPlayer && game.imposter === currentPlayer.id;
+      const imposterPlayer = game.players.find(p => p.id === game.imposter);
+      const suspectPlayer = game.players.find(p => p.id === game.suspectId);
+
+      return (
+        <div className="min-h-screen p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 mb-6">
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-500">IMPOSTER</h1>
+                  <div className="text-sm text-gray-600">Rom: <span className="font-mono font-bold">{game.code}</span></div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-sm text-gray-700">Du: <span className="font-semibold">{currentPlayer?.name}</span></div>
+                  <button onClick={() => { navigator.clipboard?.writeText(game.code); }} className="px-3 py-2 bg-gray-100 rounded-lg text-sm">Kopier kode</button>
+                  <button onClick={leaveRoom} className="px-3 py-2 bg-red-100 rounded-lg text-sm text-red-700">Forlat</button>
+                </div>
+              </div>
+
+              <hr className="my-4" />
+
+              {/* LOBBY */}
+              {game.phase === 'lobby' && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold">Spillere ({game.players.length})</h2>
+                    <div className="text-gray-600">Minst 3 spillere for å starte</div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {game.players.map(p => (
+                      <div key={p.id} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 flex justify-between items-center">
+                        <div>
+                          <div className="font-bold">{p.name}</div>
+                          <div className="text-sm text-gray-500">Poeng: {p.score}</div>
+                        </div>
+                        {game.imposter === p.id && <div className="text-xs text-red-500 font-semibold">IMPOSTER</div>}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button onClick={startGame} className="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:opacity-95">Start spillet</button>
+                    <button onClick={() => { playAgain(); }} className="bg-gray-100 text-gray-700 py-3 px-4 rounded-xl">Nullstill runde</button>
+                  </div>
+                </div>
+              )}
+
+              {/* SHOW WORD */}
+              {game.phase === 'showWord' && (
+                <div className="text-center py-8">
+                  <h2 className="text-2xl font-bold mb-4">{isImposter ? 'Du er IMPOSTER' : 'Memoriser ordet'}</h2>
+                  {!isImposter ? (
+                    <div className="inline-block bg-yellow-300 px-8 py-6 rounded-2xl text-4xl font-extrabold text-white drop-shadow">{game.word}</div>
+                  ) : (
+                    <div className="inline-block bg-red-400 px-8 py-6 rounded-2xl text-xl font-bold text-white">Du vet ikke ordet — prøv å blande deg inn!</div>
+                  )}
+                  <p className="text-gray-600 mt-4">Kategori: {game.category === 'dyr' ? '🐾 Dyr' : '🔧 Ting'}</p>
+                </div>
+              )}
+
+              {/* DISCUSSION */}
+              {game.phase === 'discussion' && (
+                <div className="text-center py-8">
+                  <h2 className="text-2xl font-bold mb-2">Diskusjonstid</h2>
+                  <p className="text-gray-600 mb-6">Snakk sammen og prøv å avsløre imposteren.</p>
+                  <div className="flex justify-center gap-3">
+                    <button onClick={startVoting} className="bg-blue-500 text-white px-6 py-3 rounded-xl font-bold">Start avstemning</button>
+                  </div>
+                </div>
+              )}
+
+              {/* VOTING */}
+              {game.phase === 'voting' && (
+                <div className="py-6">
+                  <h2 className="text-2xl font-bold mb-4 text-center">🗳️ Stem på hvem du tror er imposteren</h2>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {game.players.map(p => (
+                      <button key={p.id} onClick={() => castVote(p.id)} className="p-4 rounded-xl bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold hover:scale-105 transform">
+                        {p.name}
+                        <div className="text-sm font-normal">{Object.values(game.votes).filter(v => v === p.id).length} stemmer</div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-center text-gray-600">{Object.keys(game.votes).length} / {game.players.length} har stemt</div>
+                </div>
+              )}
+
+              {/* RESULTS */}
+              {game.phase === 'results' && (
+                <div className="py-6 text-center">
+                  <h2 className="text-2xl font-bold mb-4">Resultater</h2>
+                  <div className="bg-purple-50 p-6 rounded-2xl mb-4">
+                    <div className="text-lg">Ordet var</div>
+                    <div className="text-3xl font-extrabold text-purple-700 mb-2">{game.word}</div>
+                    <div>Imposteren var: <span className="font-bold text-red-600">{imposterPlayer?.name}</span></div>
+                    <div className="mt-2">Dere stemte på: <span className="font-bold text-orange-600">{suspectPlayer?.name}</span></div>
+                  </div>
+
+                  <div className="mb-6 text-left">
+                    <h3 className="font-bold mb-3">Poengstilling</h3>
+                    <div className="space-y-2">
+                      {game.players.slice().sort((a,b)=>b.score-a.score).map((p, i) => (
+                        <div key={p.id} className="flex justify-between bg-white p-3 rounded-xl border">
+                          <div>{i === 0 ? '👑 ' : ''}{p.name}</div>
+                          <div className="font-extrabold">{p.score}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-center">
+                    <button onClick={playAgain} className="bg-green-500 text-white px-6 py-3 rounded-xl font-bold">Spill igjen</button>
+                    <button onClick={() => { setRoomCode(''); setCurrentPlayer(null); }} className="bg-gray-100 px-6 py-3 rounded-xl">Avslutt</button>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
