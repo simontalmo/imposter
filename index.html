@@ -47,9 +47,109 @@
       var db = firebase.database();
     }
 
+    // --- EXPANDED WORD DATABASE ---
     const WORDS = {
-      dyr: ['Elefant','Pingvin','Delfin','Tiger','Kenguru','Bjørn','Rev','Ugle','Hai','Papegøye','Zebra','Giraff','Panda','Koala','Leopard'],
-      ting: ['Piano','Paraply','Kompass','Teleskop','Koffert','Lommelykt','Mikrofon','Kamera','Sykkel','Skateboard','Trampoline','Fyrstikk','Hammer','Laptop']
+      dyr: {
+        lett: ['Hund','Katt','Ku','Gris','Hest','Sau','Mus','Elefant','Tiger','Bjørn','Hai','Kanin','And','Ugle','Rev','Slange','Ape','Løve','Krokodille','Frosk'],
+        middels: ['Pingvin','Delfin','Kenguru','Papegøye','Zebra','Giraff','Panda','Koala','Leopard','Neshorn','Kamel','Struts','Flodhest','Gorilla','Gepard','Kameleont','Lemur','Piggsvin','Sebra','Vaskebjørn'],
+        vanskelig: ['Tapir','Ozelot','Kapybara','Okapi','Numbat','Quokka','Vombat','Axolotl','Pangolin','Narvhal','Tukan','Lemming','Alpakka','Marabustork','Flamingo','Sloth','Fennek','Mink','Lemen','Chinchilla']
+      },
+      ting: {
+        lett: ['Telefon','Blyant','Bok','Lampe','Stol','Bord','Seng','Sofa','TV','Klokke','Paraply','Sko','Sekk','Kopp','Tallerken','Kniv','Gaffel','Dør','Vindu','Speil'],
+        middels: ['Piano','Kompass','Teleskop','Koffert','Lommelykt','Mikrofon','Kamera','Sykkel','Skateboard','Trampoline','Hammer','Laptop','Saksofon','Fele','Gitar','Trompet','Klarinett','Kontrabass','Xylofon','Mundharmonika'],
+        vanskelig: ['Sekstant','Astrolabium','Metronom','Karabinkrok','Kaleidoskop','Kikkerter','Periskop','Tuner','Stemmegaffel','Pedalboard','Distorsjonspedal','Equalizer','Kompressor','Synthesizer','Oud','Sitar','Balalaika','Theremin','Kantele','Didgeridoo']
+      },
+      land: {
+        lett: ['Norge','Sverige','Danmark','England','Tyskland','Frankrike','Spania','Italia','USA','Canada','Kina','Japan','Australia','Brasil','Mexico','Egypt','India','Russland','Polen','Hellas'],
+        middels: ['Portugal','Belgia','Nederland','Sveits','Østerrike','Tyrkia','Thailand','Vietnam','Indonesia','Argentina','Chile','Colombia','Peru','Kenya','Marokko','Algerie','Pakistan','Bangladesh','Filippinene','New Zealand'],
+        vanskelig: ['Aserbajdsjan','Tadsjikistan','Kirgisistan','Turkmenistan','Moldova','Montenegro','Kosovo','Makedonia','Slovenia','Slovakia','Latvia','Litauen','Estland','Albania','Georgia','Armenia','Uruguay','Paraguay','Bolivia','Ecuador']
+      },
+      mat: {
+        lett: ['Pizza','Hamburger','Taco','Pasta','Ris','Brød','Eple','Banan','Appelsin','Jordbær','Gulrot','Tomat','Salat','Ost','Egg','Yoghurt','Is','Sjokolade','Kjeks','Potetgull'],
+        middels: ['Lasagne','Sushi','Burrito','Paella','Risotto','Ratatouille','Croissant','Baguette','Mango','Papaya','Ananas','Avocado','Brokkoli','Asparges','Aubergine','Paprika','Mozzarella','Parmesan','Tiramisu','Pannacotta'],
+        vanskelig: ['Bouillabaisse','Ramen','Pho','Bibimbap','Bulgogi','Carbonara','Ossobuco','Cioppino','Coq au vin','Cassoulet','Tagine','Moussaka','Ceviche','Poke','Shakshuka','Borscht','Pierogi','Goulash','Schnitzel','Stroganoff']
+      },
+      yrker: {
+        lett: ['Lærer','Lege','Sykepleier','Politi','Brannmann','Kokk','Baker','Frisør','Tannlege','Pilot','Sjåfør','Bonde','Fisker','Snekker','Rørlegger','Elektriker','Maler','Selger','Kassemedarbeider','Vaktmester'],
+        middels: ['Arkitekt','Ingeniør','Advokat','Psykolog','Fysioterapeut','Kiropraktor','Optiker','Farmasøyt','Veterinær','Journalist','Fotograf','Designer','Programmerer','Økonom','Revisor','Markedsfører','Eiendomsmegler','Resepsjonist','Bartender','Servitør'],
+        vanskelig: ['Aktuар','Seismolog','Meteorolog','Oceanograf','Paleontolog','Arkeolog','Antropolog','Etnograf','Genealog','Sommelier','Curator','Konservator','Restaurator','Koreograf','Dramaturg','Scenograf','Kostymedesigner','Lyddesigner','Colorist','Gaffer']
+      },
+      sport: {
+        lett: ['Fotball','Håndball','Basketball','Tennis','Golf','Svømming','Sykling','Løping','Ski','Skøyter','Volleyball','Bordtennis','Badminton','Boksing','Karate','Judo','Turn','Friidrett','Ridning','Dans'],
+        middels: ['Curling','Skiskyting','Alpint','Langrenn','Snowboard','Skateboard','Surfing','Klatring','Baseball','Rugby','Cricket','Ishockey','Vannpolo','Dragkamp','Fekting','Bryting','Vektløfting','Triatlon','Sykkelkross','BMX'],
+        vanskelig: ['Lacrosse','Sepaktakraw','Jai alai','Korfball','Bandy','Floorball','Hurling','Kabaddi','Bossaball','Tchoukball','Ultimate frisbee','Footgolf','Padel','Pickleball','Pesäpallo','Ringette','Synchronized skating','Speedminton','Underwater rugby','Cycle ball']
+      },
+      steder: {
+        lett: ['Strand','Fjell','Skog','Park','Bibliotek','Kino','Restaurant','Kafé','Butikk','Skole','Sykehus','Flyplass','Togstasjon','Busstopp','Hotell','Museum','Kirke','Stadion','Svømmehall','Lekeplass'],
+        middels: ['Katedral','Slott','Festning','Tempel','Moské','Synagoge','Observatorium','Akvarium','Dyrehage','Botanisk hage','Galleri','Teater','Operahus','Konserthus','Amfiteater','Marina','Havn','Kai','Brygge','Fyrtårn'],
+        vanskelig: ['Mausoleum','Akropolis','Akvedukt','Kolosseum','Parthenon','Stonehenge','Machu Picchu','Angkor Wat','Petra','Taj Mahal','Alhambra','Sagrada Familia','Notre-Dame','Westminster Abbey','Sistine Chapel','Hagia Sophia','Blue Mosque','Mezquita','Kinkaku-ji','Fushimi Inari']
+      },
+      kjendiser: {
+        lett: ['Ronaldo','Messi','Ibrahimovic','Haaland','Ødegaard','Mbappe','Neymar','Beckham','Tiger Woods','Usain Bolt','Michael Jordan','LeBron James','Serena Williams','Roger Federer','Nadal','Muhammad Ali','Mike Tyson','Maradona','Pele','Michael Phelps'],
+        middels: ['Magnus Carlsen','Ada Hegerberg','Therese Johaug','Karsten Warholm','Johannes Thingnes Bø','Novak Djokovic','Simone Biles','Lewis Hamilton','Max Verstappen','Tom Brady','Stephen Curry','Kobe Bryant','Shaquille ONeal','Marta','Alex Morgan','Kylian Mbappé','Erling Braut Haaland','Martin Ødegaard','Caroline Wozniacki','Jan Frodeno'],
+        vanskelig: ['Eliud Kipchoge','Armand Duplantis','Mondo Duplantis','Jakob Ingebrigtsen','Karoline Bjerkeli Grøvdal','Sifan Hassan','Sydney McLaughlin','Caeleb Dressel','Katie Ledecky','Adam Peaty','Ariarne Titmus','Emma McKeon','Caleb Dressel','Katinka Hosszú','Sarah Sjöström','Yuliya Efimova','Sun Yang','Gregorio Paltrinieri','Florent Manaudou','Chad le Clos']
+      }
+    };
+
+    // Hints for imposters based on category
+    const IMPOSTER_HINTS = {
+      dyr: {
+        lett: ['Et vanlig husdyr','Et dyr de fleste kjenner','Et kjent dyr','Et populært dyr'],
+        middels: ['Et eksotisk dyr','Et dyr med spesielle egenskaper','Et dyr fra et annet kontinent','Et mindre kjent dyr'],
+        vanskelig: ['Et sjeldent dyr','Et dyr få har hørt om','Et uvanlig dyr','Et dyr med unikt utseende']
+      },
+      ting: {
+        lett: ['En gjenstand du bruker ofte','Noe de fleste har hjemme','En vanlig gjenstand','Noe du ser hver dag'],
+        middels: ['Et verktøy eller instrument','En spesiell gjenstand','Noe mer uvanlig','En gjenstand med spesifikk bruk'],
+        vanskelig: ['En sjelden gjenstand','Noe svært spesifikt','En avansert gjenstand','Noe eksperter kjenner til']
+      },
+      land: {
+        lett: ['Et velkjent land','Et land de fleste kjenner','Et stort eller kjent land','Et populært land'],
+        middels: ['Et land i Europa eller Asia','Et mindre kjent land','Et land med spesiell kultur','Et interessant land'],
+        vanskelig: ['Et lite kjent land','Et land få kan plassere','Et uvanlig land','Et land i et spesifikt område']
+      },
+      mat: {
+        lett: ['En matvare alle kjenner','Noe mange spiser','En populær matrett','Mat du finner overalt'],
+        middels: ['En internasjonal rett','Mat fra et annet land','En spesiell matrett','Mer uvanlig mat'],
+        vanskelig: ['En sjelden rett','En gourmet-rett','Mat fra et spesifikt land','En sofistikert matrett']
+      },
+      yrker: {
+        lett: ['Et vanlig yrke','Et yrke de fleste kjenner','En jobb mange har','Et hverdagslig yrke'],
+        middels: ['Et yrke med utdanning','Et mer spesialisert yrke','En mindre vanlig jobb','Et spesifikt yrke'],
+        vanskelig: ['Et sjeldent yrke','En svært spesialisert jobb','Et yrke få har','Et ekspertyrke']
+      },
+      sport: {
+        lett: ['En populær idrett','En sport de fleste kjenner','En velkjent idrett','En vanlig sport'],
+        middels: ['En mindre vanlig sport','En idrett med utstyr','En spesiell sport','En internasjonal idrett'],
+        vanskelig: ['En sjelden sport','En ekstremsport','En sport få kjenner','En uvanlig idrett']
+      },
+      steder: {
+        lett: ['Et sted du ofte besøker','Et vanlig sted','Et sted i nærheten','Et hverdagslig sted'],
+        middels: ['Et spesielt sted','Et kulturelt sted','Et sted med historie','Et reisemål'],
+        vanskelig: ['Et berømt landemerke','Et historisk monument','Et verdenskjent sted','Et unikt sted']
+      },
+      kjendiser: {
+        lett: ['En kjent idrettsutøver','En superstjerne','En verdenskjent person','En toppidrettsutøver'],
+        middels: ['En profesjonell utøver','En mester i sin idrett','En anerkjent atlet','En konkurransedeltaker'],
+        vanskelig: ['En spesialisert atlet','En mesterholder','En rekordinnehaver','En eliteutøver']
+      }
+    };
+
+    const CATEGORY_INFO = {
+      dyr: { name: 'Dyr', emoji: '🐾', color: 'from-green-600 to-emerald-600' },
+      ting: { name: 'Ting', emoji: '🔧', color: 'from-blue-600 to-cyan-600' },
+      land: { name: 'Land', emoji: '🌍', color: 'from-purple-600 to-pink-600' },
+      mat: { name: 'Mat', emoji: '🍕', color: 'from-orange-600 to-red-600' },
+      yrker: { name: 'Yrker', emoji: '💼', color: 'from-indigo-600 to-blue-600' },
+      sport: { name: 'Sport', emoji: '⚽', color: 'from-yellow-600 to-orange-600' },
+      steder: { name: 'Steder', emoji: '🏛️', color: 'from-teal-600 to-green-600' },
+      kjendiser: { name: 'Kjendiser', emoji: '⭐', color: 'from-pink-600 to-rose-600' }
+    };
+
+    const DIFFICULTY_INFO = {
+      lett: { name: 'Lett', emoji: '😊', color: 'bg-green-500' },
+      middels: { name: 'Middels', emoji: '😐', color: 'bg-yellow-500' },
+      vanskelig: { name: 'Vanskelig', emoji: '😰', color: 'bg-red-500' }
     };
 
     function generateRoomCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
@@ -133,6 +233,7 @@
           phase: 'lobby',
           host: pid,
           players: { [pid]: player },
+          difficulty: 'middels',
           createdAt: firebase.database.ServerValue.TIMESTAMP
         };
         await db.ref('rooms/' + code).set(gameObj);
@@ -167,7 +268,7 @@
         } else {
             if(imposter === pid && game.phase !== 'lobby') {
                 db.ref(`rooms/${code}`).update({
-                    phase: 'lobby', word: null, category: null, imposter: null
+                    phase: 'lobby', word: null, category: null, imposter: null, imposterHint: null
                 });
                 await db.ref(`rooms/${code}/votes`).remove();
                 await db.ref(`rooms/${code}/suspectId`).remove();
@@ -203,14 +304,15 @@
       if (!roomCode || !currentPlayer || !game) {
         return <div className="h-full flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-            <h1 className="text-5xl font-extrabold text-center mb-6">IMPOSTER</h1>
+            <h1 className="text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">IMPOSTER</h1>
+            <p className="text-center text-gray-300 mb-6">Finn imposteren blant dere! 🕵️</p>
             {error && <div className="mb-4 p-3 rounded-lg bg-red-500/50 text-white text-center">{error}</div>}
             <input className="w-full p-4 mb-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ditt navn" value={playerName} onChange={e => setPlayerName(e.target.value)} />
-            <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-lg mb-4 transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('create')} disabled={loading}>{loading ? 'Lager...' : 'Lag nytt rom'}</button>
+            <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-lg mb-4 transition duration-300 disabled:opacity-50 shadow-lg" onClick={() => handleRoomAction('create')} disabled={loading}>{loading ? 'Lager...' : '✨ Lag nytt rom'}</button>
             <div className="text-center text-gray-400 my-2">eller</div>
             <div className="flex gap-3">
               <input className="flex-grow p-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Rom-kode" value={roomInput} onChange={e => setRoomInput(e.target.value)} />
-              <button className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg transition duration-300 disabled:opacity-50" onClick={() => handleRoomAction('join')} disabled={loading}>{loading ? '...' : 'Bli med'}</button>
+              <button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-6 rounded-lg transition duration-300 disabled:opacity-50 shadow-lg" onClick={() => handleRoomAction('join')} disabled={loading}>{loading ? '...' : '🚀 Bli med'}</button>
             </div>
           </div>
         </div>;
@@ -222,6 +324,7 @@
     function GameScreen({ game, currentPlayer, onLeave }) {
       const [chatInput, setChatInput] = useState('');
       const chatEndRef = useRef(null);
+      const inputRef = useRef(null);
 
       useEffect(() => {
         if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -233,13 +336,27 @@
           const playersArr = Object.values(game.players || {});
           if (playersArr.length < 3) return;
 
-          const category = Math.random() > 0.5 ? 'dyr' : 'ting';
-          const word = WORDS[category][Math.floor(Math.random() * WORDS[category].length)];
+          const categories = Object.keys(WORDS);
+          const category = categories[Math.floor(Math.random() * categories.length)];
+          const difficulty = game.difficulty || 'middels';
+          const wordsInCategory = WORDS[category][difficulty];
+          const word = wordsInCategory[Math.floor(Math.random() * wordsInCategory.length)];
           const imposter = playersArr[Math.floor(Math.random() * playersArr.length)].id;
-          const playerOrder = playersArr.map(p => p.id).sort(() => Math.random() - 0.5); 
+          const playerOrder = playersArr.map(p => p.id).sort(() => Math.random() - 0.5);
+          
+          const hints = IMPOSTER_HINTS[category][difficulty];
+          const imposterHint = hints[Math.floor(Math.random() * hints.length)];
 
           const roomRef = db.ref(`rooms/${game.code}`);
-          await roomRef.update({ phase: 'showWord', category, word, imposter, turn: 0, playerOrder });
+          await roomRef.update({ 
+            phase: 'showWord', 
+            category, 
+            word, 
+            imposter, 
+            imposterHint,
+            turn: 0, 
+            playerOrder 
+          });
           await roomRef.child('votes').remove();
           await roomRef.child('suspectId').remove();
           await roomRef.child('chat').remove();
@@ -249,6 +366,11 @@
           console.error("StartGame error:", err);
           alert(err.message);
         }
+      }
+
+      async function changeDifficulty(diff) {
+        if (!game || currentPlayer.id !== game.host) return;
+        await db.ref(`rooms/${game.code}/difficulty`).set(diff);
       }
 
       async function sendChatMessage(e) {
@@ -268,6 +390,10 @@
         const nextTurn = (game.turn + 1) % game.playerOrder.length;
         await db.ref(`rooms/${game.code}/turn`).set(nextTurn);
         setChatInput('');
+        
+        if (inputRef.current) {
+          setTimeout(() => inputRef.current.focus(), 50);
+        }
       }
 
       async function castVote(votedForId) {
@@ -305,7 +431,7 @@
       async function playAgain() {
         if (!game) return;
         const roomRef = db.ref(`rooms/${game.code}`);
-        await roomRef.update({ phase: 'lobby', word: null, category: null, imposter: null });
+        await roomRef.update({ phase: 'lobby', word: null, category: null, imposter: null, imposterHint: null });
         await roomRef.child('votes').remove();
         await roomRef.child('suspectId').remove();
         await roomRef.child('chat').remove();
@@ -317,99 +443,331 @@
       const isImposter = currentPlayer.id === game.imposter;
       const me = game.players[currentPlayer.id];
       const isHost = currentPlayer.id === game.host;
+      const difficulty = game.difficulty || 'middels';
+      const categoryInfo = CATEGORY_INFO[game.category] || {};
 
       const MainContent = () => {
         switch(game.phase) {
           case 'lobby':
             return <>
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold">Lobby</h2>
-                  <p className="text-gray-400">Venter på at spillere skal bli med...</p>
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold mb-2">🎮 Lobby</h2>
+                <p className="text-gray-400">Venter på at spillere skal bli med...</p>
+              </div>
+
+              {isHost && (
+                <div className="mb-6 bg-white/5 rounded-xl p-4 border border-white/10">
+                  <h3 className="text-lg font-semibold mb-3">⚙️ Vanskelighetsgrad</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {Object.entries(DIFFICULTY_INFO).map(([key, info]) => (
+                      <button
+                        key={key}
+                        onClick={() => changeDifficulty(key)}
+                        className={`p-3 rounded-lg font-semibold transition transform hover:scale-105 ${
+                          difficulty === key 
+                            ? info.color + ' text-white shadow-lg' 
+                            : 'bg-white/10 hover:bg-white/20'
+                        }`}
+                      >
+                        <div className="text-2xl mb-1">{info.emoji}</div>
+                        <div className="text-sm">{info.name}</div>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2 text-center">
+                    {difficulty === 'lett' && 'Perfekt for nybegynnere! 😊'}
+                    {difficulty === 'middels' && 'Balansert utfordring for de fleste 😐'}
+                    {difficulty === 'vanskelig' && 'For de som elsker en utfordring! 😰'}
+                  </p>
                 </div>
-                {isHost && <button className={`bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition ${playersArr.length < 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`} disabled={playersArr.length < 3} onClick={startGame}>Start Spillet</button>}
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                {playersArr.map(p => (
+                  <div key={p.id} className="bg-gradient-to-br from-white/10 to-white/5 p-4 rounded-xl text-center backdrop-blur-sm border border-white/10 hover:border-purple-500/50 transition">
+                    <div className="font-bold text-lg mb-1">
+                      {p.name} {game.host === p.id && '👑'}
+                    </div>
+                    <div className="text-sm text-purple-300">🏆 {p.score || 0} poeng</div>
+                  </div>
+                ))}
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {playersArr.map(p => <div key={p.id} className="bg-white/10 p-4 rounded-xl text-center"><div className="font-bold text-lg">{p.name} {game.host === p.id && '👑'}</div><div className="text-sm text-purple-300">Poeng: {p.score || 0}</div></div>)}
-              </div>
+
+              {isHost && (
+                <button 
+                  className={`w-full text-white font-bold py-4 px-6 rounded-xl transition transform text-lg shadow-lg ${
+                    playersArr.length < 3 
+                      ? 'bg-gray-600 opacity-50 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 hover:scale-105'
+                  }`}
+                  disabled={playersArr.length < 3} 
+                  onClick={startGame}
+                >
+                  {playersArr.length < 3 ? `🔒 Trenger ${3 - playersArr.length} spiller(e) til` : '🚀 Start Spillet!'}
+                </button>
+              )}
             </>;
           
           case 'showWord':
             return <div className="text-center py-10">
-              <h2 className="text-3xl font-bold mb-4">{isImposter ? 'Du er Imposter!' : 'Ditt hemmelige ord er:'}</h2>
-              {isImposter ? 
-                <div className="inline-block bg-red-500/80 px-10 py-8 rounded-2xl text-2xl font-bold shadow-lg">Vær lur, blend inn!</div> :
-                <div className="inline-block bg-blue-500/80 px-10 py-8 rounded-2xl text-4xl font-bold shadow-lg">{game.word}</div>
-              }
-              <p className="text-gray-300 mt-5 text-lg">Kategori: <span className="font-semibold">{game.category === 'dyr' ? '🐾 Dyr' : '🔧 Ting'}</span></p>
-              <p className="mt-8 text-gray-400">Diskusjonen starter om noen sekunder...</p>
+              {isImposter ? (
+                <>
+                  <h2 className="text-4xl font-bold mb-6 animate-pulse">🎭 Du er Imposteren!</h2>
+                  <div className="inline-block bg-gradient-to-r from-red-600 to-rose-600 px-12 py-10 rounded-3xl shadow-2xl mb-6">
+                    <div className="text-3xl font-bold mb-3">🤫 Hemmelig Oppdrag</div>
+                    <div className="text-xl text-red-100">Bland inn og ikke bli avslørt!</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-md mx-auto border border-red-500/30">
+                    <p className="text-sm text-gray-300 mb-2">💡 Hint:</p>
+                    <p className="text-lg font-semibold text-red-300">{game.imposterHint}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-3xl font-bold mb-6">🔍 Ditt hemmelige ord:</h2>
+                  <div className={`inline-block bg-gradient-to-r ${categoryInfo.color} px-12 py-10 rounded-3xl shadow-2xl`}>
+                    <div className="text-5xl font-bold mb-2">{game.word}</div>
+                  </div>
+                  <div className="mt-6 inline-block bg-white/10 backdrop-blur-sm px-6 py-3 rounded-xl border border-white/20">
+                    <p className="text-lg">
+                      <span className="text-2xl mr-2">{categoryInfo.emoji}</span>
+                      <span className="font-semibold">{categoryInfo.name}</span>
+                    </p>
+                  </div>
+                </>
+              )}
+              <p className="mt-8 text-gray-300 text-lg animate-bounce">⏳ Diskusjonen starter om noen sekunder...</p>
             </div>;
           
           case 'discussion':
             const currentTurnPlayer = game.players[game.playerOrder[game.turn]];
             const sortedMessages = Object.entries(game.chat?.messages || {}).sort(([,a],[,b]) => a.timestamp - b.timestamp);
             return <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto scrollbar-thin mb-3">
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{categoryInfo.emoji}</span>
+                    <span className="font-semibold">{categoryInfo.name}</span>
+                    <span className="text-sm text-gray-400">•</span>
+                    <span className="text-sm text-gray-400">{DIFFICULTY_INFO[difficulty].name}</span>
+                  </div>
+                  {currentTurnPlayer && (
+                    <div className="text-sm text-purple-300">
+                      🎤 <span className="font-semibold">{currentTurnPlayer.name}</span> sin tur
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto scrollbar-thin mb-3 bg-black/20 rounded-xl p-4">
                 <div className="space-y-2">
+                  {sortedMessages.length === 0 && (
+                    <div className="text-center text-gray-500 py-8">
+                      <p className="text-lg">💬 Diskuter ordet!</p>
+                      <p className="text-sm mt-2">Si noe relatert til ordet uten å avsløre det</p>
+                    </div>
+                  )}
                   {sortedMessages.map(([id,msg]) => (
-                    <div key={id} className={`p-2 rounded-lg ${msg.senderId === currentPlayer.id ? 'bg-purple-600/60 text-right' : 'bg-white/10 text-left'}`}>
-                      <span className="font-semibold">{msg.senderName}:</span> {msg.text}
+                    <div key={id} className={`p-3 rounded-xl transition ${
+                      msg.senderId === currentPlayer.id 
+                        ? 'bg-gradient-to-r from-purple-600/60 to-pink-600/60 text-right ml-8' 
+                        : 'bg-white/10 text-left mr-8'
+                    }`}>
+                      <div className="font-semibold text-sm mb-1">{msg.senderName}</div>
+                      <div className="text-base">{msg.text}</div>
                     </div>
                   ))}
                   <div ref={chatEndRef}></div>
                 </div>
               </div>
+
               {currentTurnPlayer?.id === currentPlayer.id ? (
                 <form onSubmit={sendChatMessage} className="flex gap-2">
-                  <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Si noe..." className="flex-grow p-3 rounded-lg bg-black/30 border border-white/20 focus:ring-2 focus:ring-purple-400 outline-none" />
-                  <button className="bg-purple-600 hover:bg-purple-700 px-5 rounded-lg">Send</button>
+                  <input 
+                    ref={inputRef}
+                    value={chatInput} 
+                    onChange={e => setChatInput(e.target.value)} 
+                    placeholder="Si noe relatert til ordet..." 
+                    className="flex-grow p-4 rounded-xl bg-black/30 border border-purple-500/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none placeholder-gray-500"
+                    autoFocus
+                  />
+                  <button type="submit" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-6 rounded-xl font-bold transition">
+                    📤 Send
+                  </button>
                 </form>
               ) : (
-                <div className="text-center text-gray-400 py-3">
-                  {currentTurnPlayer ? `Venter på ${currentTurnPlayer.name}...` : 'Vent litt...'}
+                <div className="text-center text-gray-400 py-4 bg-white/5 rounded-xl">
+                  {currentTurnPlayer ? (
+                    <>
+                      ⏳ Venter på <span className="font-semibold text-purple-300">{currentTurnPlayer.name}</span>...
+                    </>
+                  ) : 'Vent litt...'}
                 </div>
               )}
-              {isHost && <button onClick={() => db.ref(`rooms/${game.code}/phase`).set('voting')} className="mt-3 bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-lg w-full font-bold">Start Avstemning</button>}
+
+              {isHost && (
+                <button 
+                  onClick={() => db.ref(`rooms/${game.code}/phase`).set('voting')} 
+                  className="mt-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 px-6 py-4 rounded-xl w-full font-bold transition transform hover:scale-105 shadow-lg"
+                >
+                  🗳️ Start Avstemning
+                </button>
+              )}
             </div>;
           
           case 'voting':
             return <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4">Hvem er Imposter?</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {playersArr.map(p => (
-                  <button key={p.id} onClick={() => castVote(p.id)} className={`p-4 rounded-xl transition ${game.votes?.[currentPlayer.id] === p.id ? 'bg-purple-700' : 'bg-white/10 hover:bg-white/20'}`}>{p.name}</button>
-                ))}
+              <h2 className="text-4xl font-bold mb-6">🕵️ Hvem er Imposteren?</h2>
+              <p className="text-gray-300 mb-6">Stem på personen du tror er imposteren</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                {playersArr.map(p => {
+                  const hasVoted = game.votes?.[currentPlayer.id] === p.id;
+                  return (
+                    <button 
+                      key={p.id} 
+                      onClick={() => castVote(p.id)} 
+                      className={`p-6 rounded-xl transition transform hover:scale-105 ${
+                        hasVoted 
+                          ? 'bg-gradient-to-r from-purple-700 to-pink-700 shadow-lg ring-2 ring-purple-400' 
+                          : 'bg-white/10 hover:bg-white/20'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">{hasVoted ? '✅' : '👤'}</div>
+                      <div className="font-bold text-lg">{p.name}</div>
+                    </button>
+                  );
+                })}
               </div>
-              <p className="mt-4 text-gray-400">{Object.keys(game.votes || {}).length}/{playersArr.length} har stemt</p>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <p className="text-lg">
+                  <span className="font-bold text-purple-300">{Object.keys(game.votes || {}).length}</span>
+                  <span className="text-gray-400"> / {playersArr.length} har stemt</span>
+                </p>
+              </div>
             </div>;
           
           case 'results':
             const suspect = game.players[game.suspectId];
+            const imposterPlayer = game.players[game.imposter];
+            const imposterWasFound = game.suspectId === game.imposter;
             return <div className="text-center py-10">
-              <h2 className="text-3xl font-bold mb-4">Resultat</h2>
-              <p className="text-xl mb-2">Mistenkt: <span className="font-bold text-purple-300">{suspect?.name || '?'}</span></p>
-              <p className="text-xl mb-6">Imposter var: <span className="font-bold text-red-400">{game.players[game.imposter]?.name}</span></p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                {playersArr.map(p => <div key={p.id} className="bg-white/10 p-4 rounded-xl"><div className="font-bold">{p.name}</div><div>Poeng: {p.score}</div></div>)}
+              <h2 className="text-4xl font-bold mb-8">🎭 Resultat</h2>
+              
+              <div className="max-w-2xl mx-auto space-y-6 mb-8">
+                <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
+                  <p className="text-lg mb-2 text-gray-300">Dere stemte på:</p>
+                  <p className="text-3xl font-bold text-purple-300">{suspect?.name || '?'}</p>
+                </div>
+
+                <div className={`bg-gradient-to-r ${
+                  imposterWasFound 
+                    ? 'from-green-600/30 to-emerald-600/30 border-green-500/50' 
+                    : 'from-red-600/30 to-rose-600/30 border-red-500/50'
+                } backdrop-blur-sm p-6 rounded-2xl border`}>
+                  <p className="text-lg mb-2 text-gray-300">Imposteren var:</p>
+                  <p className="text-3xl font-bold text-red-300 mb-3">{imposterPlayer?.name}</p>
+                  <p className="text-xl">
+                    {imposterWasFound ? '✅ Imposteren ble funnet!' : '❌ Imposteren klarte å lure dere!'}
+                  </p>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+                  <p className="text-lg mb-2 text-gray-300">Ordet var:</p>
+                  <p className="text-3xl font-bold">{game.word}</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    <span className="text-xl mr-1">{categoryInfo.emoji}</span>
+                    {categoryInfo.name} - {DIFFICULTY_INFO[difficulty].name}
+                  </p>
+                </div>
               </div>
-              {isHost && <button onClick={playAgain} className="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-lg text-xl font-bold">Spill Igjen</button>}
+
+              <h3 className="text-2xl font-bold mb-4">🏆 Poengtavle</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                {playersArr.sort((a, b) => b.score - a.score).map((p, idx) => (
+                  <div key={p.id} className="bg-gradient-to-br from-white/10 to-white/5 p-5 rounded-xl border border-white/10">
+                    <div className="text-2xl mb-2">
+                      {idx === 0 && '🥇'}
+                      {idx === 1 && '🥈'}
+                      {idx === 2 && '🥉'}
+                    </div>
+                    <div className="font-bold text-lg mb-1">{p.name}</div>
+                    <div className="text-xl text-purple-300 font-bold">🏆 {p.score}</div>
+                  </div>
+                ))}
+              </div>
+
+              {isHost && (
+                <button 
+                  onClick={playAgain} 
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-8 py-4 rounded-xl w-full max-w-md mx-auto font-bold text-lg transition transform hover:scale-105 shadow-lg"
+                >
+                  🔄 Spill Igjen
+                </button>
+              )}
+            </div>;
+
+          default:
+            return <div className="text-center py-10">
+              <p className="text-gray-400">Laster spill...</p>
             </div>;
         }
       };
 
-      return <div className="h-full flex flex-col">
-        <div className="p-4 bg-black/30 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Rom: {game.code}</h1>
-            <p className="text-gray-400 text-sm">{currentPlayer.name}{isHost && ' (Vert)'}</p>
+      return (
+        <div className="h-full flex flex-col p-4 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg border border-white/10">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">IMPOSTER</h1>
+              <p className="text-sm text-gray-400">Rom: <span className="font-mono font-bold text-purple-300">{game.code}</span></p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="font-semibold">{me?.name} {isHost && '👑'}</p>
+                <p className="text-sm text-purple-300">🏆 {me?.score || 0} poeng</p>
+              </div>
+              <button 
+                onClick={onLeave} 
+                className="bg-red-600/80 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold transition"
+              >
+                🚪 Forlat
+              </button>
+            </div>
           </div>
-          <button onClick={onLeave} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg">Forlat Rom</button>
+
+          {/* Main Game Area */}
+          <div className="flex-1 bg-white/5 backdrop-blur-md rounded-2xl p-6 overflow-y-auto shadow-lg border border-white/10 scrollbar-thin">
+            <MainContent />
+          </div>
+
+          {/* Players Sidebar (only show in certain phases) */}
+          {(game.phase === 'discussion' || game.phase === 'voting') && (
+            <div className="mt-4 bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10">
+              <h3 className="font-bold mb-3 flex items-center gap-2">
+                <span>👥</span>
+                <span>Spillere ({playersArr.length})</span>
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {playersArr.map(p => (
+                  <div 
+                    key={p.id} 
+                    className="bg-white/10 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+                  >
+                    <span>{p.name}</span>
+                    <span className="text-purple-300">•</span>
+                    <span className="text-purple-300">{p.score || 0}p</span>
+                    {game.votes?.[p.id] && <span className="text-green-400">✓</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex-1 overflow-y-auto p-6"><MainContent /></div>
-      </div>;
+      );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    // Render the app
+    ReactDOM.render(<App />, document.getElementById('root'));
   </script>
 </body>
 </html>
