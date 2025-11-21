@@ -288,6 +288,8 @@
         setRoomCode('');
         setCurrentPlayer(null);
         setGame(null);
+        setError('');
+        setRoomInput('');
       }
 
       // --- UI rendering ---
@@ -303,16 +305,89 @@
 
       if (!roomCode || !currentPlayer || !game) {
         return <div className="h-full flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-            <h1 className="text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">IMPOSTER</h1>
-            <p className="text-center text-gray-300 mb-6">Finn imposteren blant dere! 🕵️</p>
-            {error && <div className="mb-4 p-3 rounded-lg bg-red-500/50 text-white text-center">{error}</div>}
-            <input className="w-full p-4 mb-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ditt navn" value={playerName} onChange={e => setPlayerName(e.target.value)} />
-            <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-lg mb-4 transition duration-300 disabled:opacity-50 shadow-lg" onClick={() => handleRoomAction('create')} disabled={loading}>{loading ? 'Lager...' : '✨ Lag nytt rom'}</button>
-            <div className="text-center text-gray-400 my-2">eller</div>
-            <div className="flex gap-3">
-              <input className="flex-grow p-4 bg-black/20 border border-white/20 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Rom-kode" value={roomInput} onChange={e => setRoomInput(e.target.value)} />
-              <button className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-6 rounded-lg transition duration-300 disabled:opacity-50 shadow-lg" onClick={() => handleRoomAction('join')} disabled={loading}>{loading ? '...' : '🚀 Bli med'}</button>
+          <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/20">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-5xl font-extrabold mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400 bg-clip-text text-transparent">
+                IMPOSTER
+              </h1>
+              <p className="text-gray-300 text-sm">Finn imposteren blant dere! 🕵️</p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-center text-sm animate-pulse">
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* Name Input */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                📝 Ditt navn
+              </label>
+              <input 
+                className="w-full p-4 bg-black/30 border border-white/20 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" 
+                placeholder="Skriv navnet ditt..." 
+                value={playerName} 
+                onChange={e => setPlayerName(e.target.value)}
+                maxLength={20}
+              />
+            </div>
+
+            {/* Create Room Button */}
+            <button 
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl mb-6 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transform hover:scale-[1.02] active:scale-[0.98]" 
+              onClick={() => handleRoomAction('create')} 
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">⏳</span> Lager rom...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  ✨ Lag nytt rom
+                </span>
+              )}
+            </button>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/20"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white/10 text-gray-400 rounded-full">eller</span>
+              </div>
+            </div>
+
+            {/* Join Room Section */}
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-300">
+                🚪 Bli med i rom
+              </label>
+              <div className="flex gap-3">
+                <input 
+                  className="flex-grow p-4 bg-black/30 border border-white/20 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition uppercase tracking-wider font-mono" 
+                  placeholder="ROM-KODE" 
+                  value={roomInput} 
+                  onChange={e => setRoomInput(e.target.value.toUpperCase())}
+                  maxLength={6}
+                />
+                <button 
+                  className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold py-4 px-6 rounded-xl transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transform hover:scale-[1.02] active:scale-[0.98]" 
+                  onClick={() => handleRoomAction('join')} 
+                  disabled={loading}
+                >
+                  {loading ? '⏳' : '🚀'}
+                </button>
+              </div>
+            </div>
+
+            {/* Footer Info */}
+            <div className="mt-8 pt-6 border-t border-white/10 text-center text-xs text-gray-400">
+              <p>💡 Tips: Spillet krever minimum 3 spillere</p>
             </div>
           </div>
         </div>;
@@ -336,12 +411,17 @@
           const playersArr = Object.values(game.players || {});
           if (playersArr.length < 3) return;
 
+          // Shuffle players array for true randomization
+          const shuffledPlayers = playersArr.sort(() => Math.random() - 0.5);
+
           const categories = Object.keys(WORDS);
           const category = categories[Math.floor(Math.random() * categories.length)];
           const difficulty = game.difficulty || 'middels';
           const wordsInCategory = WORDS[category][difficulty];
           const word = wordsInCategory[Math.floor(Math.random() * wordsInCategory.length)];
-          const imposter = playersArr[Math.floor(Math.random() * playersArr.length)].id;
+          
+          // Pick imposter from shuffled array
+          const imposter = shuffledPlayers[Math.floor(Math.random() * shuffledPlayers.length)].id;
           const playerOrder = playersArr.map(p => p.id).sort(() => Math.random() - 0.5);
           
           const hints = IMPOSTER_HINTS[category][difficulty];
@@ -692,6 +772,8 @@
                     </div>
                     <div className="font-bold text-lg mb-1">{p.name}</div>
                     <div className="text-xl text-purple-300 font-bold">🏆 {p.score}</div>
+                    <div className="font-bold text-lg mb-1">{p.name}</div>
+                    <div className="text-xl text-purple-300 font-bold">🏆 {p.score}</div>
                   </div>
                 ))}
               </div>
@@ -699,74 +781,57 @@
               {isHost && (
                 <button 
                   onClick={playAgain} 
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-8 py-4 rounded-xl w-full max-w-md mx-auto font-bold text-lg transition transform hover:scale-105 shadow-lg"
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-4 px-6 rounded-xl transition transform hover:scale-105 shadow-lg"
                 >
                   🔄 Spill Igjen
                 </button>
               )}
             </div>;
-
+          
           default:
             return <div className="text-center py-10">
-              <p className="text-gray-400">Laster spill...</p>
+              <p className="text-gray-400">Laster...</p>
             </div>;
         }
       };
 
       return (
-        <div className="h-full flex flex-col p-4 max-w-7xl mx-auto">
+        <div className="h-full flex flex-col bg-gradient-to-br from-gray-900 via-purple-900 to-violet-800">
           {/* Header */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg border border-white/10">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">IMPOSTER</h1>
-              <p className="text-sm text-gray-400">Rom: <span className="font-mono font-bold text-purple-300">{game.code}</span></p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="font-semibold">{me?.name} {isHost && '👑'}</p>
-                <p className="text-sm text-purple-300">🏆 {me?.score || 0} poeng</p>
+          <div className="bg-black/30 backdrop-blur-md border-b border-white/10 p-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  IMPOSTER
+                </h1>
+                <p className="text-sm text-gray-400">Rom: <span className="font-mono font-bold text-purple-300">{game.code}</span></p>
               </div>
-              <button 
-                onClick={onLeave} 
-                className="bg-red-600/80 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold transition"
-              >
-                🚪 Forlat
-              </button>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-sm text-gray-400">Du er:</p>
+                  <p className="font-bold">{me?.name}</p>
+                  <p className="text-sm text-purple-300">🏆 {me?.score || 0} poeng</p>
+                </div>
+                <button 
+                  onClick={onLeave} 
+                  className="bg-red-600/80 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition backdrop-blur-sm"
+                >
+                  🚪 Forlat
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Main Game Area */}
-          <div className="flex-1 bg-white/5 backdrop-blur-md rounded-2xl p-6 overflow-y-auto shadow-lg border border-white/10 scrollbar-thin">
-            <MainContent />
-          </div>
-
-          {/* Players Sidebar (only show in certain phases) */}
-          {(game.phase === 'discussion' || game.phase === 'voting') && (
-            <div className="mt-4 bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10">
-              <h3 className="font-bold mb-3 flex items-center gap-2">
-                <span>👥</span>
-                <span>Spillere ({playersArr.length})</span>
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {playersArr.map(p => (
-                  <div 
-                    key={p.id} 
-                    className="bg-white/10 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
-                  >
-                    <span>{p.name}</span>
-                    <span className="text-purple-300">•</span>
-                    <span className="text-purple-300">{p.score || 0}p</span>
-                    {game.votes?.[p.id] && <span className="text-green-400">✓</span>}
-                  </div>
-                ))}
-              </div>
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-hidden p-4">
+            <div className="max-w-7xl mx-auto h-full bg-black/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 overflow-y-auto scrollbar-thin">
+              <MainContent />
             </div>
-          )}
+          </div>
         </div>
       );
     }
 
-    // Render the app
     ReactDOM.render(<App />, document.getElementById('root'));
   </script>
 </body>
