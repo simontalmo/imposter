@@ -12,4 +12,4 @@ COPY . /app
 EXPOSE 3300
 
 # Host hele mappa via serve
-CMD ["serve", "-s", ".", "-l", "3000"]
+CMD ["serve", "-s", ".", "-l", "3300"]
