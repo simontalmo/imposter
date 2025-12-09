@@ -9,6 +9,6 @@ COPY imposter_game.tsx /usr/share/nginx/html/
 COPY README.md /usr/share/nginx/html/
 
 # Expose port
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
