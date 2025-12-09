@@ -9,7 +9,7 @@ RUN npm install -g serve
 COPY . /app
 
 # Expose port 3000
-EXPOSE 3000
+EXPOSE 3001
 
 # Host hele mappa via serve
 CMD ["serve", "-s", ".", "-l", "3000"]
